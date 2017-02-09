@@ -1,12 +1,13 @@
 package tla;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
 public abstract class AF {
-	protected List<Character> alphabet;
-	protected List<String> states;
-	protected List<String> finalStates;
-	protected List<String>[][] delta;
+	protected SortedSet<Character> alphabet;
+	protected SortedSet<String> states;
+	protected Set<String> finalStates;
+	protected Set<String>[][] deltas;
+	protected String initialState;
 	
 	/*
 	 * 
@@ -14,69 +15,44 @@ public abstract class AF {
 	 * 
 	 * */
 	
-	public List<Character> getAlphabet() {
+	public SortedSet<Character> getAlphabet() {
 		return alphabet;
 	}
-	public void setAlphabet(List<Character> alphabet) {
+	public AF setAlphabet(SortedSet<Character> alphabet) {
 		this.alphabet = alphabet;
+		return this;
 	}
-	public List<String> getStates() {
+	public SortedSet<String> getStates() {
 		return states;
 	}
-	public void setStates(List<String> states) {
+	public AF setStates(SortedSet<String> states) {
 		this.states = states;
+		return this;
 	}
-	public List<String> getFinalStates() {
+	public Set<String> getFinalStates() {
 		return finalStates;
 	}
-	public void setFinalStates(List<String> finalStates) {
+	public AF setFinalStates(Set<String> finalStates) {
+		for(String s : finalStates){
+			if(!states.contains(s))
+				return this;
+		}
 		this.finalStates = finalStates;
+		return this;
 	}
-	public List<String>[][] getDelta() {
-		return delta;
+	public Set<String>[][] getDeltas() {
+		return deltas;
 	}
-	public void setDelta(List<String>[][] delta) {
-		this.delta = delta;
+	public AF setDeltas(Set<String>[][] deltas) {
+		this.deltas = deltas;
+		return this;		
 	}
-	
-	public List<String> getPosition(String state, Character character){
-		int i = -1,j = -1;
-		for (int k = 0; k < states.size(); k++) {
-			if(states.get(k).equals(state)){
-				i = k;
-				break;
-			}
-		}
-		for (int k = 0; k < alphabet.size(); k++) {
-			if(alphabet.get(k).equals(character)){
-				j = k;
-				break;
-			}
-		}
-		if(j==-1 || i==-1)
-			return new ArrayList<String>();
-		return delta[i][j];
+	public String getInitialState() {
+		return initialState;
 	}
-	
-	public boolean setPosition(String state, Character character, List<String> positions){
-		int i = -1,j = -1;
-		for (int k = 0; k < states.size(); k++) {
-			if(states.get(k).equals(state)){
-				i = k;
-				break;
-			}
-		}
-		for (int k = 0; k < alphabet.size(); k++) {
-			if(alphabet.get(k).equals(character)){
-				j = k;
-				break;
-			}
-		}
-		
-		if(j==-1 || i==-1 || !this.states.containsAll(positions))
-			return Boolean.FALSE;
-		
-		delta[i][j] = positions;
-		return Boolean.TRUE;
+	public AF setInitialState(String initialState) {
+		if(states.contains(initialState))
+			this.initialState = initialState;
+		return this;
 	}
 }

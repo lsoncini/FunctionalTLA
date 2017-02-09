@@ -1,38 +1,39 @@
 package tla;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 
 public class AFD extends AF{
 	
-	public AFD(final List<Character> alp, final List<String> st, final List<String> fst, final List<String>[][] table ) {
-		this.alphabet = alp;
-		this.states = st;
-		this.finalStates = fst;
-		this.delta = table;
+	public AFD(final SortedSet<Character> alp, final SortedSet<String> st, final Set<String> fst, final Set<String>[][] table, final String init) {
+		this.setAlphabet(alp)
+			.setStates(st)
+			.setFinalStates(fst)
+			.setDeltas(table)
+			.setInitialState(init);
 	}
 	
 	public GR toGR() {
-		List<String> nonTerminals = new ArrayList<>();
-		for (Character c : alphabet) {
-			nonTerminals.add(String.valueOf(c));
-		}
-		List<String> terminals = this.states;
-		String initialState = states.get(0);
-		Map<String, List<String>> predicates = new HashMap<String, List<String>>();
+		Set<String> nonTerminals = new HashSet<>();
+		alphabet.forEach(c -> nonTerminals.add(String.valueOf(c)));
+		Set<String> terminals = new HashSet<>();
+		terminals.addAll(states);
+		String initialState = this.initialState;
+		Map<String, Set<String>> predicates = new HashMap<String, Set<String>>();
 		
 		for(String st : states) {
 			for(Character c: alphabet) {
 				String r = getDelta(st, c);
 				if(r!=null) {
-					List<String> to = new ArrayList<>();
+					Set<String> to = new HashSet<>();
 					to.add(String.valueOf(c).concat(st));
 					predicates.put(st,to);
 					nonTerminals.add(st);
 					nonTerminals.add(r);
 					if(finalStates.contains(r)) {
-						List<String> aux = new ArrayList<>();
+						Set<String> aux = new HashSet<>();
 						aux.add(String.valueOf(c));
 						predicates.put(st,aux);
 					}
@@ -40,7 +41,7 @@ public class AFD extends AF{
 			}
 		}
 		if(finalStates.contains(initialState)) {
-			List<String> aux = new ArrayList<>();
+			Set<String> aux = new HashSet<>();
 			aux.add(String.valueOf("\\"));
 			predicates.put(initialState,aux);
 		}		
@@ -48,7 +49,24 @@ public class AFD extends AF{
 	}
 
 	public String getDelta(String state, Character character) {
-		List<String> aux = getPosition(state, character);
-		return aux.isEmpty()? null:aux.get(0);
+		int i = states.contains(state) ? states.headSet(state).size() : -1;
+		int j = alphabet.contains(character) ? alphabet.headSet(character).size() : -1;
+		
+		if(j==-1 || i==-1)
+			return null;
+		return deltas[i][j].stream().findFirst().orElse(null);
+	}
+	
+	public boolean setDelta(String state, Character character, String delta){
+		int i = states.contains(state) ? states.headSet(state).size() : -1;
+		int j = alphabet.contains(character) ? alphabet.headSet(character).size() : -1;
+		
+		if(j==-1 || i==-1 || !this.states.contains(delta))
+			return Boolean.FALSE;
+		
+		Set<String> set = new HashSet<>();
+		set.add(delta);
+		deltas[i][j] = set;
+		return Boolean.TRUE;
 	}
 }
