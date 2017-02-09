@@ -1,3 +1,4 @@
+package tla;
 public class ER {
 	
 	private String regex;
