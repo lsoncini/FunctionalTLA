@@ -1,6 +1,5 @@
 package tla;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -12,6 +11,8 @@ public class AFNDL extends AF{
 	public AFNDL(SortedSet<String> alp, SortedSet<String> st, Set<String> fst, Set<String>[][] table, String init) {
 		if(table.length != st.size() || table[0].length != alp.size())
 			throw new IllegalArgumentException("Delta dimensions are wrong (#Rows != #States or #Columns != #Alphabet + 1");
+		if (!st.containsAll(fst) || !st.contains(init))
+			throw new IllegalArgumentException("All final and initial states must be included in States");
 		
 		this.setAlphabet(alp)
 			.setStates(st)
@@ -24,9 +25,12 @@ public class AFNDL extends AF{
 		Set<String>[][] delta = new HashSet[st.size()][alp.size()+1];
 		for (int i = 0; i < delta.length; i++) {
 			for (int j = 0; j < delta[i].length; j++) {
-				delta[i][j] = Collections.emptySet();
+				delta[i][j] = new HashSet<>();
 			}
 		}
+		if (!st.containsAll(fst) || !st.contains(init))
+			throw new IllegalArgumentException("All final and initial states must be included in States");
+		
 		this.setAlphabet(alp)
 		.setStates(st)
 		.setFinalStates(fst)

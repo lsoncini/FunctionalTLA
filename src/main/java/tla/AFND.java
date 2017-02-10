@@ -1,7 +1,6 @@
 package tla;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +14,8 @@ public class AFND extends AF {
 	public AFND(final SortedSet<String> alp, final SortedSet<String> st, final Set<String> fst, final Set<String>[][] table, final String init) {
 		if(table.length != st.size() || table[0].length != alp.size())
 			throw new IllegalArgumentException("Delta dimensions are wrong (#Rows != #States or #Columns != #Alphabet");
+		if (!st.containsAll(fst) || !st.contains(init))
+			throw new IllegalArgumentException("All final and initial states must be included in States");
 		this.setAlphabet(alp)
 			.setStates(st)
 			.setFinalStates(fst)
@@ -26,9 +27,12 @@ public class AFND extends AF {
 		Set<String>[][] delta = new HashSet[st.size()][alp.size()];
 		for (int i = 0; i < delta.length; i++) {
 			for (int j = 0; j < delta[i].length; j++) {
-				delta[i][j] = Collections.emptySet();
+				delta[i][j] = new HashSet<>();
 			}
 		}
+		if (!st.containsAll(fst) || !st.contains(init))
+			throw new IllegalArgumentException("All final and initial states must be included in States");
+		
 		this.setAlphabet(alp)
 		.setStates(st)
 		.setFinalStates(fst)
@@ -66,7 +70,7 @@ public class AFND extends AF {
 		Map<String, Map<String, String>> tableMap = new HashMap<>();
 		Set<String> doneSts = new HashSet<String>();
 		List<Set<String>> pendingSts = new ArrayList<Set<String>>();
-		Set<String> aux = Collections.emptySet();
+		Set<String> aux = new HashSet<>();
 		aux.add(initialState);
 		pendingSts.add(aux);
 		
@@ -79,7 +83,7 @@ public class AFND extends AF {
 			for (String sym : getAlphabet()) {
 				Set<String> currentDelta = getConcatDelta(currentStSet, sym);
 				String currentDeltaName = getConcatName(currentDelta);
-				Map<String, String> currentRow = tableMap.getOrDefault(currentSt, Collections.emptyMap());
+				Map<String, String> currentRow = tableMap.getOrDefault(currentSt, new HashMap<>());
 				currentRow.put(sym, currentDeltaName);
 				if (!pendingSts.contains(currentDelta) && !doneSts.contains(currentDeltaName)) {
 					pendingSts.add(currentDelta);

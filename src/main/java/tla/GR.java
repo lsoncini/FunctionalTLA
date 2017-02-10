@@ -64,34 +64,28 @@ public class GR {
 		return this;
 	}
 	
-	public boolean addPredicate(String from, Set<String> to) {
-		Set<String> p = predicates.get(from);
+	public void addPredicate(String from, Set<String> to) {
+		Set<String> p = predicates.getOrDefault(from, new HashSet<>());
 		for(String s : to) {
 			if(from.equals(s) || p.contains(s))
-				return Boolean.FALSE;
+				return;
 		}
 		
 		p.addAll(to);
 		this.predicates.put(from, p);
-		return Boolean.TRUE;
 	}
 	
-	public boolean removePredicate(String from, String to) {
+	public void removePredicate(String from, String to) {
 		Set<String> p = predicates.get(from);
 		if(!p.contains(to))
-			return Boolean.FALSE;
+			return;
 		p.remove(to);
 		this.predicates.put(from, p);
-		return Boolean.TRUE;
 	}
 	
-	public boolean addPredicates(Map<String,Set<String>> predicates) {
-		boolean flag = true;
-		for(Entry<String, Set<String>> p : predicates.entrySet()) {
-			if(!addPredicate(p.getKey(), p.getValue()))
-				flag = false;
-		}
-		return flag;
+	public void addPredicates(Map<String,Set<String>> predicates) {
+		for(Entry<String, Set<String>> p : predicates.entrySet())
+			addPredicate(p.getKey(), p.getValue());
 	}
 
 	public String getInitialState() {
@@ -271,4 +265,28 @@ public class GR {
 		nonTerminals.removeAll(nts);
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append(" {\n");
+		sb.append(String.format("\t Alphabet: %s,\n", getTerminals().toString()))
+		  .append(String.format("\t Non-terminals: %s,\n", getNonTerminals().toString()))
+		  .append(String.format("\t Initial: %s,\n", getInitialState()))
+		  .append(String.format("\t Predicates: {\n", getInitialState()));
+		
+		for (Entry<String, Set<String>> ps : predicates.entrySet()) {
+			String left = ps.getKey();
+			String right = "";
+			boolean flag = false;
+			for (String p : ps.getValue()) {
+				String fullPredicate = p.replace(" ", "");
+				if(flag)
+					fullPredicate += "|";
+				right += fullPredicate;
+				flag = true;
+			}
+			sb.append(String.format("\t\t %s -> %s\n", left, right));
+		}
+		sb.append("\t }\n").append("}\n");
+		return sb.toString();
+	}
 }

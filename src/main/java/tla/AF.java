@@ -33,10 +33,8 @@ public abstract class AF {
 		return finalStates;
 	}
 	public AF setFinalStates(Set<String> finalStates) {
-		for(String s : finalStates){
-			if(!states.contains(s))
-				return this;
-		}
+		if(!states.containsAll(finalStates))
+			return this;
 		this.finalStates = finalStates;
 		return this;
 	}
@@ -57,4 +55,25 @@ public abstract class AF {
 	}
 	
 	public abstract AFD toAFD();
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append(" {\n");
+		sb.append(String.format("\t States: %s,\n", getStates().toString()))
+		  .append(String.format("\t Alphabet: %s,\n", getAlphabet().toString()))
+		  .append(String.format("\t Finals: %s,\n", getFinalStates().toString()))
+		  .append(String.format("\t Initial: %s,\n", getInitialState()))
+		  .append(String.format("\t Delta: {\n", getInitialState()));
+		int i = 0,j = 0;
+		for (String st : getStates()) {
+			j = 0;
+			for (String c : getAlphabet()) {
+				sb.append(String.format("\t\t d(%s, %s): %s\n", st,c,deltas[i][j]));
+				j++;
+			}
+			i++;
+		}
+		sb.append("\t }\n").append("}\n");
+		return sb.toString();
+	}
 }

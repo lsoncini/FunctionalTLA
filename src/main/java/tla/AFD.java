@@ -1,5 +1,4 @@
 package tla;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,6 +8,11 @@ import java.util.SortedSet;
 public class AFD extends AF{
 	
 	public AFD(final SortedSet<String> alp, final SortedSet<String> st, final Set<String> fst, final Set<String>[][] table, final String init) {
+		if (table.length != st.size() || table[0].length != alp.size())
+			throw new IllegalArgumentException("Delta dimensions are wrong (#Rows != #States or #Columns != #Alphabet");
+		if (!st.containsAll(fst) || !st.contains(init))
+			throw new IllegalArgumentException("All final and initial states must be included in States");
+		
 		this.setAlphabet(alp)
 			.setStates(st)
 			.setFinalStates(fst)
@@ -20,9 +24,12 @@ public class AFD extends AF{
 		Set<String>[][] delta = new HashSet[st.size()][alp.size()];
 		for (int i = 0; i < delta.length; i++) {
 			for (int j = 0; j < delta[i].length; j++) {
-				delta[i][j] = Collections.emptySet();
+				delta[i][j] = new HashSet<>();
 			}
 		}
+		if (!st.containsAll(fst) || !st.contains(init))
+			throw new IllegalArgumentException("All final and initial states must be included in States");
+		
 		this.setAlphabet(alp)
 		.setStates(st)
 		.setFinalStates(fst)
@@ -31,10 +38,10 @@ public class AFD extends AF{
 	}
 	
 	public GR toGR() {
-		Set<String> nonTerminals = new HashSet<>();
-		alphabet.forEach(c -> nonTerminals.add(String.valueOf(c)));
 		Set<String> terminals = new HashSet<>();
-		terminals.addAll(states);
+		alphabet.forEach(c -> terminals.add(String.valueOf(c)));
+		Set<String> nonTerminals = new HashSet<>();
+		nonTerminals.addAll(states);
 		String initialState = this.initialState;
 		Map<String, Set<String>> predicates = new HashMap<String, Set<String>>();
 		
