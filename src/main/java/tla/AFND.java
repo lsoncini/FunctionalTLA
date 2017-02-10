@@ -82,9 +82,12 @@ public class AFND extends AF {
 			
 			for (String sym : getAlphabet()) {
 				Set<String> currentDelta = getConcatDelta(currentStSet, sym);
+				if(currentDelta.isEmpty())
+					continue;
 				String currentDeltaName = getConcatName(currentDelta);
 				Map<String, String> currentRow = tableMap.getOrDefault(currentSt, new HashMap<>());
 				currentRow.put(sym, currentDeltaName);
+				tableMap.put(currentSt, currentRow);
 				if (!pendingSts.contains(currentDelta) && !doneSts.contains(currentDeltaName)) {
 					pendingSts.add(currentDelta);
 					sts.add(currentDeltaName);
@@ -98,7 +101,8 @@ public class AFND extends AF {
 		for (String st : sts) {
 			Map<String, String> deltaForSt = tableMap.get(st);
 			for (String c : getAlphabet()) {
-				newAFD.setDelta(st, c, deltaForSt.get(c));
+				if (deltaForSt != null)
+					newAFD.setDelta(st, c, deltaForSt.get(c));
 			}
 		}
 		
@@ -107,6 +111,9 @@ public class AFND extends AF {
 	}
 	
 	private String getConcatName(Set<String> states){
+		if (states == null || states.isEmpty())
+			return null;
+					
 		SortedSet<String> sortedStates = new TreeSet<>(states);
 		String name = sortedStates.stream().reduce("", String::concat);
 		while (alphabet.contains(name)) {
@@ -115,6 +122,9 @@ public class AFND extends AF {
 		return name;
 	}
 	private Set<String> getConcatDelta(Set<String> states, String character){
+		if (states == null || states.isEmpty())
+			return new HashSet<>();
+		
 		Set<String> set = new HashSet<>();
 		for (String st : states)
 			set.addAll(getDelta(st, character));

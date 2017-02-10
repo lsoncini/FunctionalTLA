@@ -83,11 +83,13 @@ public class AFD extends AF{
 		int i = states.contains(state) ? states.headSet(state).size() : -1;
 		int j = alphabet.contains(character) ? alphabet.headSet(character).size() : -1;
 		
-		if(j==-1 || i==-1 || !this.states.contains(delta))
-			return Boolean.FALSE;
-		
+		if(delta != null) {
+			if(j==-1 || i==-1 || !states.contains(delta))
+				return Boolean.FALSE;
+		}
 		Set<String> set = new HashSet<>();
-		set.add(delta);
+		if(delta != null)
+			set.add(delta);
 		deltas[i][j] = set;
 		return Boolean.TRUE;
 	}
