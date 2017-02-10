@@ -12,7 +12,7 @@ public class GR {
 	protected Set<String> nonTerminals;
 	protected Set<String> terminals;
 	protected Map<String, Set<String>> predicates;
-	protected String initialState;
+	protected String initialSymbol;
 	
 	private static final String LAMBDA = "\\";
 
@@ -95,13 +95,13 @@ public class GR {
 	}
 
 	public String getInitialState() {
-		return initialState;
+		return initialSymbol;
 	}
 
 	public boolean setInitialState(String initialState) {
 		if (!nonTerminals.contains(initialState))
 			return Boolean.FALSE;
-		this.initialState = initialState;
+		this.initialSymbol = initialState;
 		return Boolean.TRUE;
 	}
 
@@ -111,7 +111,7 @@ public class GR {
 		Set<String> lambda = new HashSet<>();
 		lambda.add(LAMBDA);
 		String initial = getNextState();
-		ps.put(initialState, lambda);
+		ps.put(initialSymbol, lambda);
 		for (Entry<String, Set<String>> p : predicates.entrySet()) {
 			for (String s : p.getValue()) {
 				String[] strings = s.split(" ");
@@ -164,32 +164,32 @@ public class GR {
 						if(hasNT)
 							return false;
 						hasNT = true;
-					} else if(terminals.contains(symbols[i])) {
-						if(hasT)
+					} else if (terminals.contains(symbols[i])) {
+						if (hasT)
 							return false;
 						hasT = true;
 					}
 				}
-				if(!hasNT && !hasT)
+				if (!hasNT && !hasT)
 					return false;
 			}
 		}
 		for (String state : nonTerminals) {
-			if(!predicates.containsKey(state) || predicates.get(state).isEmpty())
+			if (!predicates.containsKey(state) || predicates.get(state).isEmpty())
 				return false;
 		}
 		return true;
 	}
 	
 	private GR squash() {
-		for(String nt : nonTerminals) {
+		for (String nt : nonTerminals) {
 			boolean hasChanged = false;
 			do {
 				hasChanged = false;
 				Set<String> ps = predicates.get(nt);
-				for(String p : ps) {
+				for (String p : ps) {
 					String[] symbols = p.split(" ");
-					if(symbols.length == 1 && nonTerminals.contains(p)){
+					if (symbols.length == 1 && nonTerminals.contains(p)){
 						this.removePredicate(nt, p);
 						this.addPredicate(nt, predicates.get(p));
 						hasChanged = true;
@@ -208,10 +208,10 @@ public class GR {
 	private GR simplify() {
 		Set<String> productiveSymbols = new HashSet<>();
 		Set<String> reachableSymbols = new HashSet<>();
-		reachableSymbols.add(initialState);
-		for(Entry<String, Set<String>> ps : predicates.entrySet()) {
-			for(String p : ps.getValue()) {
-				if(terminals.contains(p) || p.equals(LAMBDA)) {
+		reachableSymbols.add(initialSymbol);
+		for (Entry<String, Set<String>> ps : predicates.entrySet()) {
+			for (String p : ps.getValue()) {
+				if (terminals.contains(p) || p.equals(LAMBDA)) {
 					productiveSymbols.add(ps.getKey());
 					break;
 				}
@@ -220,28 +220,28 @@ public class GR {
 		boolean hasChanged = false;
 		do {
 			hasChanged = false;
-			for(Entry<String, Set<String>> ps : predicates.entrySet()) {
+			for (Entry<String, Set<String>> ps : predicates.entrySet()) {
 				String key = ps.getKey();
-				if(productiveSymbols.contains(key) && !reachableSymbols.contains(key))
+				if (productiveSymbols.contains(key) && !reachableSymbols.contains(key))
 					continue;
-				for(String p : ps.getValue()) {
+				for (String p : ps.getValue()) {
 					String[] s = p.split(" ");
 					String nt = null;
 					for (int i = 0; i < s.length; i++) {
-						if(nonTerminals.contains(s[i])) {
+						if (nonTerminals.contains(s[i])) {
 							nt = s[i];
 							break;
 						}
 					}
 					
-					if(nt != null){
-						if(!productiveSymbols.contains(key) && productiveSymbols.contains(nt)) {
+					if (nt != null){
+						if (!productiveSymbols.contains(key) && productiveSymbols.contains(nt)) {
 							productiveSymbols.add(key);
 							hasChanged = true;
-							if(!reachableSymbols.contains(key))
+							if (!reachableSymbols.contains(key))
 								break;
 						}
-						if(reachableSymbols.contains(key) && !reachableSymbols.contains(nt)) {
+						if (reachableSymbols.contains(key) && !reachableSymbols.contains(nt)) {
 							reachableSymbols.add(nt);
 							hasChanged = true;
 						}
@@ -251,11 +251,24 @@ public class GR {
 		} while (hasChanged);
 		
 		Set<String> killSet = nonTerminals.stream().filter(nt -> !productiveSymbols.contains(nt) || !reachableSymbols.contains(nt)).collect(Collectors.toSet());
-		killSet.forEach(nt -> remove(nt));
+		this.removeSymbols(killSet);
 		return this;
 	}
 	
-	private void remove(String nt){
-		//TODO remove everything
+	private void removeSymbols(Set<String> nts){
+		nts.forEach(nt -> predicates.remove(nt));
+		for (Entry<String, Set<String>> ps : predicates.entrySet()) {
+			for (String p : ps.getValue()) {
+				String[] s = p.split(" ");
+				for (int i = 0; i < s.length; i++) {
+					if (nts.contains(s[i])) {
+						this.removePredicate(ps.getKey(), p);
+						break;
+					}
+				}
+			}
+		}
+		nonTerminals.removeAll(nts);
 	}
+	
 }

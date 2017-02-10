@@ -7,7 +7,7 @@ import java.util.SortedSet;
 
 public class AFD extends AF{
 	
-	public AFD(final SortedSet<Character> alp, final SortedSet<String> st, final Set<String> fst, final Set<String>[][] table, final String init) {
+	public AFD(final SortedSet<String> alp, final SortedSet<String> st, final Set<String> fst, final Set<String>[][] table, final String init) {
 		this.setAlphabet(alp)
 			.setStates(st)
 			.setFinalStates(fst)
@@ -24,7 +24,7 @@ public class AFD extends AF{
 		Map<String, Set<String>> predicates = new HashMap<String, Set<String>>();
 		
 		for(String st : states) {
-			for(Character c: alphabet) {
+			for(String c: alphabet) {
 				String r = getDelta(st, c);
 				if(r!=null) {
 					Set<String> to = new HashSet<>();
@@ -48,7 +48,7 @@ public class AFD extends AF{
 		return new GR(nonTerminals, terminals, predicates, initialState);
 	}
 
-	public String getDelta(String state, Character character) {
+	public String getDelta(String state, String character) {
 		int i = states.contains(state) ? states.headSet(state).size() : -1;
 		int j = alphabet.contains(character) ? alphabet.headSet(character).size() : -1;
 		
@@ -57,7 +57,7 @@ public class AFD extends AF{
 		return deltas[i][j].stream().findFirst().orElse(null);
 	}
 	
-	public boolean setDelta(String state, Character character, String delta){
+	public boolean setDelta(String state, String character, String delta){
 		int i = states.contains(state) ? states.headSet(state).size() : -1;
 		int j = alphabet.contains(character) ? alphabet.headSet(character).size() : -1;
 		

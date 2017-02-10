@@ -3,7 +3,7 @@ import java.util.Set;
 import java.util.SortedSet;
 
 public abstract class AF {
-	protected SortedSet<Character> alphabet;
+	protected SortedSet<String> alphabet;
 	protected SortedSet<String> states;
 	protected Set<String> finalStates;
 	protected Set<String>[][] deltas;
@@ -15,10 +15,10 @@ public abstract class AF {
 	 * 
 	 * */
 	
-	public SortedSet<Character> getAlphabet() {
+	public SortedSet<String> getAlphabet() {
 		return alphabet;
 	}
-	public AF setAlphabet(SortedSet<Character> alphabet) {
+	public AF setAlphabet(SortedSet<String> alphabet) {
 		this.alphabet = alphabet;
 		return this;
 	}
