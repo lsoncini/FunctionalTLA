@@ -96,4 +96,8 @@ public class AFNDL extends AF{
 		}
 		return new AFND(getAlphabet(), getStates(), fStates, newDelta, getInitialState());
 	}
+	
+	public AFD toAFD() {
+		return toAFND().toAFD();
+	}
 }

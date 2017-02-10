@@ -1,4 +1,5 @@
 package tla;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,6 +14,20 @@ public class AFD extends AF{
 			.setFinalStates(fst)
 			.setDeltas(table)
 			.setInitialState(init);
+	}
+	public AFD(final SortedSet<String> alp, final SortedSet<String> st, final Set<String> fst, final String init) {
+		@SuppressWarnings("unchecked")
+		Set<String>[][] delta = new HashSet[st.size()][alp.size()];
+		for (int i = 0; i < delta.length; i++) {
+			for (int j = 0; j < delta[i].length; j++) {
+				delta[i][j] = Collections.emptySet();
+			}
+		}
+		this.setAlphabet(alp)
+		.setStates(st)
+		.setFinalStates(fst)
+		.setDeltas(delta)
+		.setInitialState(init);
 	}
 	
 	public GR toGR() {
@@ -68,5 +83,10 @@ public class AFD extends AF{
 		set.add(delta);
 		deltas[i][j] = set;
 		return Boolean.TRUE;
+	}
+
+	@Override
+	public AFD toAFD() {
+		return this;
 	}
 }

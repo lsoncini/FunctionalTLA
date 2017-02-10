@@ -55,4 +55,6 @@ public abstract class AF {
 			this.initialState = initialState;
 		return this;
 	}
+	
+	public abstract AFD toAFD();
 }
