@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -76,9 +75,7 @@ public class AFND extends AF {
 			pendingSts.remove(0);
 			String currentSt = getConcatName(currentStSet);
 			doneSts.add(currentSt);
-			sts.add(currentSt);
-			if(isFinalState(currentStSet))
-				fsts.add(currentSt);
+			
 			for (String sym : getAlphabet()) {
 				Set<String> currentDelta = getConcatDelta(currentStSet, sym);
 				String currentDeltaName = getConcatName(currentDelta);
@@ -86,6 +83,9 @@ public class AFND extends AF {
 				currentRow.put(sym, currentDeltaName);
 				if (!pendingSts.contains(currentDelta) && !doneSts.contains(currentDeltaName)) {
 					pendingSts.add(currentDelta);
+					sts.add(currentDeltaName);
+					if(isFinalState(currentDelta))
+						fsts.add(currentDeltaName);
 				}
 			}
 		}
@@ -97,6 +97,8 @@ public class AFND extends AF {
 				newAFD.setDelta(st, c, deltaForSt.get(c));
 			}
 		}
+		
+		//check empty empty empty
 		return newAFD;
 	}
 	
