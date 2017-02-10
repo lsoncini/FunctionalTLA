@@ -25,8 +25,12 @@ public class GR {
 			.setPredicates(p);
 		if(!setInitialState(is))
 			throw new IllegalArgumentException("Initial symbol not included in Non-Terminal set.");
+		System.out.println("\n\nNOT VALIDATED GRAMMAR:\n\n");
+		System.out.println(this);
 		if(!isValid())
 			throw new IllegalArgumentException("Not a regular grammar.");
+		System.out.println("\n\nPSEUDO GRAMMAR:\n\n");
+		System.out.println(this);
 		this.simplify();
 	}
 
@@ -278,9 +282,10 @@ public class GR {
 			String right = "";
 			boolean flag = false;
 			for (String p : ps.getValue()) {
-				String fullPredicate = p.replace(" ", "");
+				String fullPredicate = "";
 				if(flag)
 					fullPredicate += "|";
+				fullPredicate += p.replace(" ", "");
 				right += fullPredicate;
 				flag = true;
 			}

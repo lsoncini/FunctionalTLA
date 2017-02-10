@@ -39,7 +39,7 @@ public class AFD extends AF{
 	
 	public GR toGR() {
 		Set<String> terminals = new HashSet<>();
-		alphabet.forEach(c -> terminals.add(String.valueOf(c)));
+		alphabet.forEach(c -> terminals.add(c));
 		Set<String> nonTerminals = new HashSet<>();
 		nonTerminals.addAll(states);
 		String initialState = this.initialState;
@@ -49,21 +49,21 @@ public class AFD extends AF{
 			for(String c: alphabet) {
 				String r = getDelta(st, c);
 				if(r!=null) {
-					Set<String> to = new HashSet<>();
-					to.add(String.valueOf(c).concat(st));
+					Set<String> to = predicates.getOrDefault(st, new HashSet<>());
+					to.add(c.concat(" ").concat(r));
 					predicates.put(st,to);
 					nonTerminals.add(st);
 					nonTerminals.add(r);
 					if(finalStates.contains(r)) {
-						Set<String> aux = new HashSet<>();
-						aux.add(String.valueOf(c));
+						Set<String> aux = predicates.getOrDefault(st, new HashSet<>());
+						aux.add(c);
 						predicates.put(st,aux);
 					}
 				}
 			}
 		}
 		if(finalStates.contains(initialState)) {
-			Set<String> aux = new HashSet<>();
+			Set<String> aux = predicates.getOrDefault(initialState, new HashSet<>());
 			aux.add(String.valueOf("\\"));
 			predicates.put(initialState,aux);
 		}		

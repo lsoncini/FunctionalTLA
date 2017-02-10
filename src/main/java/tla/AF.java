@@ -71,9 +71,15 @@ public abstract class AF {
 				sb.append(String.format("\t\t d(%s, %s): %s\n", st,c,deltas[i][j]));
 				j++;
 			}
+			if(hasLambdas())
+				sb.append(String.format("\t\t d(%s, %s): %s\n", st, "\\", deltas[i][j]));
 			i++;
 		}
 		sb.append("\t }\n").append("}\n");
 		return sb.toString();
+	}
+	
+	public boolean hasLambdas() {
+		return false;
 	}
 }
