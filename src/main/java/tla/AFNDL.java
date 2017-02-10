@@ -81,7 +81,19 @@ public class AFNDL extends AF{
 	}
 	
 	public AFND toAFND() {
-		return null; //TODO code something
+		@SuppressWarnings("unchecked")
+		Set<String>[][] newDelta = new HashSet[deltas.length][deltas[0].length - 1];
+		Set<String> fStates = new HashSet<>();
+		for (String fs : finalStates)
+			fStates.addAll(lambdaClosure(fs));
+		
+		for (int i = 0; i < newDelta.length; i++) {
+			for (int j = 0; j < newDelta[i].length; j++) {
+				for (String st : deltas[i][j]) {
+					newDelta[i][j].addAll(lambdaClosure(st));
+				}
+			}
+		}
+		return new AFND(getAlphabet(), getStates(), fStates, newDelta, getInitialState());
 	}
-
 }
