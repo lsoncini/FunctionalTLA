@@ -1,6 +1,5 @@
 package tla;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +13,11 @@ public class Test {
 	private static final SortedSet<String> AFD_FINAL_STATES = new TreeSet<String>(Arrays.asList(new String[]{"A", "B", "C", "D"}));
 	private static final String AFD_INITIAL_STATE = "A";
 	private static final SortedSet<String> AFD_ALPHABET = new TreeSet<String>(Arrays.asList(new String[]{"0","1","2"}));
+	
+	private static final SortedSet<String> AFD3_STATES = new TreeSet<String>(Arrays.asList(new String[]{"I", "A", "B", "C", "D", "E"}));
+	private static final SortedSet<String> AFD3_FINAL_STATES = new TreeSet<String>(Arrays.asList(new String[]{"A", "B", "C", "I"}));
+	private static final String AFD3_INITIAL_STATE = "I";
+	private static final SortedSet<String> AFD3_ALPHABET = new TreeSet<String>(Arrays.asList(new String[]{"a","b"}));
 	
 	private static final SortedSet<String> AFNDL_STATES = new TreeSet<String>(Arrays.asList(new String[]{"A", "B", "C"}));
 	private static final SortedSet<String> AFNDL_FINAL_STATES = new TreeSet<String>(Arrays.asList(new String[]{"C"}));
@@ -119,9 +123,63 @@ public class Test {
 		System.out.println("SEVENTH TEST");
 		System.out.println("----------------------------------------\n");
 		
-		AFNDL afndl2 = gr2.toAFNDL();
-		System.out.println(afndl2);
-		System.out.println(afndl2.toAFND());
+		System.out.println(gr2.toAFNDL());
+		System.out.println(gr2.toAFND());
+		System.out.println(gr2.toAFD());
+		
+		System.out.println("----------------------------------------");
+		System.out.println("EIGHTH TEST");
+		System.out.println("----------------------------------------\n");
+		
+		AFD afd3 = new AFD(AFD3_ALPHABET, AFD3_STATES, AFD3_FINAL_STATES, AFD3_INITIAL_STATE);
+		afd3.setDelta("I", "a", "A");
+		afd3.setDelta("I", "b", "B");
+		
+		afd3.setDelta("A", "a", "A");
+		afd3.setDelta("A", "b", "C");
+		
+		afd3.setDelta("B", "a", "A");
+		afd3.setDelta("B", "b", "D");
+		
+		afd3.setDelta("C", "a", "A");
+		afd3.setDelta("C", "b", "E");
+		
+		afd3.setDelta("D", "a", "D");
+		afd3.setDelta("D", "b", "E");
+		
+		afd3.setDelta("E", "a", "E");
+		afd3.setDelta("E", "b", "D");
+		
+		System.out.println(afd3);
+		System.out.println(afd3.addTrap());
+		System.out.println(afd3.minimalAFD());
+		
+		System.out.println("----------------------------------------");
+		System.out.println("NINETH TEST");
+		System.out.println("----------------------------------------\n");
+		
+		AFD afd4 = new AFD(AFD3_ALPHABET, AFD3_STATES, AFD3_FINAL_STATES, AFD3_INITIAL_STATE);
+		afd4.setDelta("I", "a", "A");
+		afd4.setDelta("I", "b", "B");
+		
+		afd4.setDelta("A", "a", "A");
+		afd4.setDelta("A", "b", "C");
+		
+		afd4.setDelta("B", "a", "A");
+		afd4.setDelta("B", "b", "D");
+		
+		afd4.setDelta("C", "a", "A");
+		afd4.setDelta("C", "b", "E");
+		
+		afd4.setDelta("D", "a", "D");
+		afd4.setDelta("D", "b", "E");
+		
+		afd4.setDelta("E", "a", "C");
+		afd4.setDelta("E", "b", "D");
+		
+		System.out.println(afd4);
+		System.out.println(afd4.addTrap());
+		System.out.println(afd4.minimalAFD());
 	}
 
 }
