@@ -23,6 +23,10 @@ public class Test {
 	private static final Set<String> GR_NT = new HashSet<String>(Arrays.asList(new String[]{"S", "T", "V", "X", "Q"}));
 	private static final String GR_INITIAL_STATE = "S";
 	private static final Set<String> GR_ALPHABET = new HashSet<String>(Arrays.asList(new String[]{"a","b","c","d","e"}));
+	
+	private static final Set<String> GR2_NT = new HashSet<String>(Arrays.asList(new String[]{"S", "A", "B"}));
+	private static final String GR2_INITIAL_STATE = "S";
+	private static final Set<String> GR2_ALPHABET = new HashSet<String>(Arrays.asList(new String[]{"a","b"}));
 
 	public static void main(String[] args) {
 		System.out.println("----------------------------------------");
@@ -97,6 +101,19 @@ public class Test {
 		System.out.println(gr);
 		System.out.println("\n\nRIGHT LINEAR GRAMMAR:\n\n");
 		System.out.println(gr.toRight());
+		
+		System.out.println("----------------------------------------");
+		System.out.println("SIXTH TEST");
+		System.out.println("----------------------------------------\n");
+		Map<String, Set<String>> predicates2 = new HashMap<String, Set<String>>();
+		predicates2.put("S", new HashSet<String>(Arrays.asList(new String[]{"A a","B b"})));
+		predicates2.put("A", new HashSet<String>(Arrays.asList(new String[]{"\\","b"})));
+		predicates2.put("B", new HashSet<String>(Arrays.asList(new String[]{"\\","a"})));
+		
+		GR gr2 = new GR(GR2_NT, GR2_ALPHABET, predicates2, GR2_INITIAL_STATE);
+		System.out.println(gr2);
+		System.out.println("\n\nRIGHT LINEAR GRAMMAR:\n\n");
+		System.out.println(gr2.toRight());
 	}
 
 }

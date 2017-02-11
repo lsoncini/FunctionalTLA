@@ -25,12 +25,12 @@ public class GR {
 			.setPredicates(p);
 		if(!setInitialState(is))
 			throw new IllegalArgumentException("Initial symbol not included in Non-Terminal set.");
-		System.out.println("\n\nNOT VALIDATED GRAMMAR:\n\n");
-		System.out.println(this);
+//		System.out.println("\n\nNOT VALIDATED GRAMMAR:\n\n");
+//		System.out.println(this);
 		if(!isValid())
 			throw new IllegalArgumentException("Not a regular grammar.");
-		System.out.println("\n\nPSEUDO GRAMMAR:\n\n");
-		System.out.println(this);
+//		System.out.println("\n\nPSEUDO GRAMMAR:\n\n");
+//		System.out.println(this);
 		this.simplify();
 	}
 
@@ -122,7 +122,7 @@ public class GR {
 					Set<String> newStateList = ps.getOrDefault(initial, new HashSet<>());
 					
 					if (strings[0].equals(LAMBDA)) {
-						newStateList.add(s);
+						newStateList.add(p.getKey());
 						ps.put(initial, newStateList);
 					} else if (nonTerminals.contains(strings[0])) {
 						Set<String> oldList = ps.getOrDefault(p.getKey(), new HashSet<>());
@@ -185,14 +185,18 @@ public class GR {
 			do {
 				hasChanged = false;
 				Set<String> ps = predicates.get(nt);
+				Set<String> toRemoveForNT = new HashSet<>();
+				Set<String> toAddForNT = new HashSet<>();
 				for (String p : ps) {
 					String[] symbols = p.split(" ");
 					if (symbols.length == 1 && nonTerminals.contains(p)){
-						this.removePredicate(nt, p);
-						this.addPredicate(nt, predicates.get(p));
+						toRemoveForNT.add(p);
+						toAddForNT.addAll(predicates.get(p));
 						hasChanged = true;
 					}
 				}
+				toRemoveForNT.forEach(s -> removePredicate(nt, s));
+				addPredicate(nt, toAddForNT);
 			} while (hasChanged);
 			
 		}
