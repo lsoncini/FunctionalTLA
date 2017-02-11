@@ -11,17 +11,6 @@ import java.util.TreeSet;
 
 public class AFND extends AF {
 
-	public AFND(final SortedSet<String> alp, final SortedSet<String> st, final Set<String> fst, final Set<String>[][] table, final String init) {
-		if(table.length != st.size() || table[0].length != alp.size())
-			throw new IllegalArgumentException("Delta dimensions are wrong (#Rows != #States or #Columns != #Alphabet");
-		if (!st.containsAll(fst) || !st.contains(init))
-			throw new IllegalArgumentException("All final and initial states must be included in States");
-		this.setAlphabet(alp)
-			.setStates(st)
-			.setFinalStates(fst)
-			.setDeltas(table)
-			.setInitialState(init);
-	}
 	public AFND(final SortedSet<String> alp, final SortedSet<String> st, final Set<String> fst, final String init) {
 		@SuppressWarnings("unchecked")
 		Set<String>[][] delta = new HashSet[st.size()][alp.size()];
@@ -62,12 +51,13 @@ public class AFND extends AF {
 		deltas[i][j] = positions == null ? new HashSet<>() : positions;
 		return Boolean.TRUE;
 	}
+	
 	@Override
 	public AFD toAFD() {
 		SortedSet<String> sts = new TreeSet<>();
 		sts.add(initialState);
 		Set<String> fsts = new HashSet<>();
-		if(getFinalStates().contains(initialState))
+		if (getFinalStates().contains(initialState))
 			fsts.add(initialState);
 		Map<String, Map<String, String>> tableMap = new HashMap<>();
 		Set<String> doneSts = new HashSet<String>();

@@ -10,19 +10,7 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class AFD extends AF{
-	
-	public AFD(final SortedSet<String> alp, final SortedSet<String> st, final Set<String> fst, final Set<String>[][] table, final String init) {
-		if (table.length != st.size() || table[0].length != alp.size())
-			throw new IllegalArgumentException("Delta dimensions are wrong (#Rows != #States or #Columns != #Alphabet");
-		if (!st.containsAll(fst) || !st.contains(init))
-			throw new IllegalArgumentException("All final and initial states must be included in States");
-		
-		this.setAlphabet(alp)
-			.setStates(st)
-			.setFinalStates(fst)
-			.setDeltas(table)
-			.setInitialState(init);
-	}
+
 	public AFD(final SortedSet<String> alp, final SortedSet<String> st, final Set<String> fst, final String init) {
 		@SuppressWarnings("unchecked")
 		Set<String>[][] delta = new HashSet[st.size()][alp.size()];
@@ -56,8 +44,6 @@ public class AFD extends AF{
 					Set<String> to = predicates.getOrDefault(st, new HashSet<>());
 					to.add(c.concat(" ").concat(r));
 					predicates.put(st,to);
-					nonTerminals.add(st);
-					nonTerminals.add(r);
 					if(finalStates.contains(r)) {
 						Set<String> aux = predicates.getOrDefault(st, new HashSet<>());
 						aux.add(c);
@@ -104,7 +90,7 @@ public class AFD extends AF{
 	}
 	@Override
 	public AFND toAFND() {
-		return new AFND(getAlphabet(), getStates(), getFinalStates(), getDeltas(), getInitialState());
+		return (AFND) new AFND(getAlphabet(), getStates(), getFinalStates(), getInitialState()).setDeltas(getDeltas());
 	}
 	
 	@Override
