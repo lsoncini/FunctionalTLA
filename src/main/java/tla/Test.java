@@ -23,6 +23,11 @@ public class Test {
 	private static final SortedSet<String> AFNDL_FINAL_STATES = new TreeSet<String>(Arrays.asList(new String[]{"C"}));
 	private static final String AFNDL_INITIAL_STATE = "A";
 	private static final SortedSet<String> AFNDL_ALPHABET = new TreeSet<String>(Arrays.asList(new String[]{"0","1","2"}));
+
+	private static final SortedSet<String> AFNDL2_STATES = new TreeSet<String>(Arrays.asList(new String[]{"0", "1", "2", "3"}));
+	private static final SortedSet<String> AFNDL2_FINAL_STATES = new TreeSet<String>(Arrays.asList(new String[]{"1"}));
+	private static final String AFNDL2_INITIAL_STATE = "0";
+	private static final SortedSet<String> AFNDL2_ALPHABET = new TreeSet<String>(Arrays.asList(new String[]{"a","b"}));
 	
 	private static final Set<String> GR_NT = new HashSet<String>(Arrays.asList(new String[]{"S", "T", "V", "X", "Q"}));
 	private static final String GR_INITIAL_STATE = "S";
@@ -34,7 +39,7 @@ public class Test {
 
 	public static void main(String[] args) {
 		System.out.println("----------------------------------------");
-		System.out.println("FIRST TEST");
+		System.out.println("1ST TEST");
 		System.out.println("----------------------------------------");
 		AFD afd = new AFD(AFD_ALPHABET, AFD_STATES, AFD_FINAL_STATES, AFD_INITIAL_STATE);
 		afd.setDelta("A", "0", "B");
@@ -54,7 +59,7 @@ public class Test {
 		System.out.println(afd.toGR());
 		
 		System.out.println("----------------------------------------");
-		System.out.println("SECOND TEST");
+		System.out.println("2ND TEST");
 		System.out.println("----------------------------------------");
 		AFNDL afndl = new AFNDL(AFNDL_ALPHABET, AFNDL_STATES, AFNDL_FINAL_STATES, AFNDL_INITIAL_STATE);
 		
@@ -73,7 +78,7 @@ public class Test {
 		System.out.println(afd2);
 		
 		System.out.println("----------------------------------------");
-		System.out.println("THIRD TEST");
+		System.out.println("3RD TEST");
 		System.out.println("----------------------------------------\n");
 		System.out.println("-----------PART 1: AFD -> GR------------\n");
 		System.out.println(afd2.toGR());
@@ -83,7 +88,7 @@ public class Test {
 		System.out.println(afndl.toGR());
 		
 		System.out.println("----------------------------------------");
-		System.out.println("FOURTH TEST");
+		System.out.println("4TH TEST");
 		System.out.println("----------------------------------------\n");
 		System.out.println("-----------PART 1: AFD -> AFND----------\n");
 		System.out.println(afd2.toAFND());
@@ -93,7 +98,7 @@ public class Test {
 		System.out.println(afnd.toAFNDL());
 		
 		System.out.println("----------------------------------------");
-		System.out.println("FIFTH TEST");
+		System.out.println("5TH TEST");
 		System.out.println("----------------------------------------\n");
 		Map<String, Set<String>> predicates = new HashMap<String, Set<String>>();
 		predicates.put("S", new HashSet<String>(Arrays.asList(new String[]{"T a","V b","b","X c","e"})));
@@ -107,7 +112,7 @@ public class Test {
 		System.out.println(gr.toRight());
 		
 		System.out.println("----------------------------------------");
-		System.out.println("SIXTH TEST");
+		System.out.println("6TH TEST");
 		System.out.println("----------------------------------------\n");
 		Map<String, Set<String>> predicates2 = new HashMap<String, Set<String>>();
 		predicates2.put("S", new HashSet<String>(Arrays.asList(new String[]{"A a","B b"})));
@@ -120,7 +125,7 @@ public class Test {
 		System.out.println(gr2.toRight());
 		
 		System.out.println("----------------------------------------");
-		System.out.println("SEVENTH TEST");
+		System.out.println("7TH TEST");
 		System.out.println("----------------------------------------\n");
 		
 		System.out.println(gr2.toAFNDL());
@@ -128,7 +133,7 @@ public class Test {
 		System.out.println(gr2.toAFD());
 		
 		System.out.println("----------------------------------------");
-		System.out.println("EIGHTH TEST");
+		System.out.println("8TH TEST");
 		System.out.println("----------------------------------------\n");
 		
 		AFD afd3 = new AFD(AFD3_ALPHABET, AFD3_STATES, AFD3_FINAL_STATES, AFD3_INITIAL_STATE);
@@ -155,7 +160,7 @@ public class Test {
 		System.out.println(afd3.minimalAFD());
 		
 		System.out.println("----------------------------------------");
-		System.out.println("NINETH TEST");
+		System.out.println("9TH TEST");
 		System.out.println("----------------------------------------\n");
 		
 		AFD afd4 = new AFD(AFD3_ALPHABET, AFD3_STATES, AFD3_FINAL_STATES, AFD3_INITIAL_STATE);
@@ -180,6 +185,27 @@ public class Test {
 		System.out.println(afd4);
 		System.out.println(afd4.addTrap());
 		System.out.println(afd4.minimalAFD());
+		
+		System.out.println("----------------------------------------");
+		System.out.println("10TH TEST");
+		System.out.println("----------------------------------------\n");
+		
+		AFNDL afndl2 = new AFNDL(AFNDL2_ALPHABET,AFNDL2_STATES,AFNDL2_FINAL_STATES,AFNDL2_INITIAL_STATE);
+		afndl2.setDelta("0", "b", new HashSet<String>(Arrays.asList(new String[]{"1","2"})));
+		afndl2.setDelta("0", "\\", new HashSet<String>(Arrays.asList(new String[]{"2"})));
+		
+		afndl2.setDelta("1", "a", new HashSet<String>(Arrays.asList(new String[]{"0"})));
+		afndl2.setDelta("1", "b", new HashSet<String>(Arrays.asList(new String[]{"0","1"})));
+
+		afndl2.setDelta("2", "a", new HashSet<String>(Arrays.asList(new String[]{"2"})));
+		afndl2.setDelta("2", "\\", new HashSet<String>(Arrays.asList(new String[]{"3"})));
+		
+		System.out.println(afndl2);
+		System.out.println(afndl2.toAFND());
+		AFD afd5 = afndl2.toAFD();
+		System.out.println(afd5);
+		System.out.println(afd5.addTrap());
+		System.out.println(afd5.minimalAFD());
 	}
 
 }
