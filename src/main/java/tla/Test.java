@@ -114,6 +114,14 @@ public class Test {
 		System.out.println(gr2);
 		System.out.println("\n\nRIGHT LINEAR GRAMMAR:\n\n");
 		System.out.println(gr2.toRight());
+		
+		System.out.println("----------------------------------------");
+		System.out.println("SEVENTH TEST");
+		System.out.println("----------------------------------------\n");
+		
+		AFNDL afndl2 = gr2.toAFNDL();
+		System.out.println(afndl2);
+		System.out.println(afndl2.toAFND());
 	}
 
 }

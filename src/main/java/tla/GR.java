@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 public class GR {
@@ -300,7 +302,28 @@ public class GR {
 	}
 	
 	public AFNDL toAFNDL() {
-		return null;
+		GR rlg = this.toRight();
+		SortedSet<String> alp = new TreeSet<>(rlg.getTerminals());
+		SortedSet<String> sts = new TreeSet<>(rlg.getNonTerminals());
+		Set<String> fsts = new HashSet<>();
+		AFNDL ans = new AFNDL(alp, sts, fsts, rlg.getInitialState());
+		
+		for (String st : sts) {
+			Set<String> preds = rlg.getPredicates().get(st);
+			for (String ps : preds) {
+				if(ps.equals(LAMBDA)) {
+					fsts.add(st);
+				} else {
+					String[] p = ps.split(" ");
+					String c = p[0];
+					String s = p[1];
+					Set<String> old = ans.getDelta(st, c);
+					old.add(s);
+					ans.setDelta(st, c, old);
+				}
+			}
+		}
+		return ans;
 	}
 	public AFND toAFND() {
 		return toAFNDL().toAFND();

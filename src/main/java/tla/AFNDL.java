@@ -89,8 +89,14 @@ public class AFNDL extends AF{
 	@Override
 	public AFND toAFND() {
 		Set<String> fStates = new HashSet<>();
-		for (String fs : finalStates)
-			fStates.addAll(lambdaClosure(fs));
+		for (String st : getStates()) {
+			for (String fst : getFinalStates()) {
+				if (lambdaClosure(st).contains(fst)) {
+					fStates.add(st);
+					break;
+				}
+			}	
+		}
 		AFND afnd = new AFND(getAlphabet(), getStates(), fStates, getInitialState());
 		
 		for(String st : getStates()) {
@@ -99,9 +105,10 @@ public class AFNDL extends AF{
 				for (String aSt : lambdaClosure(st)) {
 					aux.addAll(getDelta(aSt, c));
 				}
-				for (String aSt : aux) {
-					afnd.setDelta(st, c, lambdaClosure(aSt));
-				}
+				Set<String> deltas = new HashSet<>();
+				for (String aSt : aux) 
+					deltas.addAll(lambdaClosure(aSt));
+				afnd.setDelta(st, c, deltas);
 			}
 		}
 		return afnd;
