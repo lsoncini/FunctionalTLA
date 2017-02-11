@@ -1,7 +1,10 @@
 package tla;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -17,9 +20,9 @@ public class Test {
 	private static final String AFNDL_INITIAL_STATE = "A";
 	private static final SortedSet<String> AFNDL_ALPHABET = new TreeSet<String>(Arrays.asList(new String[]{"0","1","2"}));
 	
-	private static final Set<String> GR_NT = new HashSet<String>(Arrays.asList(new String[]{"A", "B", "C"}));
-	private static final String GR_INITIAL_STATE = "A";
-	private static final Set<String> GR_ALPHABET = new HashSet<String>(Arrays.asList(new String[]{"a","b","c"}));
+	private static final Set<String> GR_NT = new HashSet<String>(Arrays.asList(new String[]{"S", "T", "V", "X", "Q"}));
+	private static final String GR_INITIAL_STATE = "S";
+	private static final Set<String> GR_ALPHABET = new HashSet<String>(Arrays.asList(new String[]{"a","b","c","d","e"}));
 
 	public static void main(String[] args) {
 		System.out.println("----------------------------------------");
@@ -40,7 +43,6 @@ public class Test {
 		afd.setDelta("D", "2", "D");
 		
 		System.out.println(afd);
-		//GR gr = new GR(GR_NT, GR_ALPHABET, new HashMap<String, Set<String>>(), GR_INITIAL_STATE);
 		System.out.println(afd.toGR());
 		
 		System.out.println("----------------------------------------");
@@ -62,6 +64,39 @@ public class Test {
 		AFD afd2 = afnd.toAFD();
 		System.out.println(afd2);
 		
+		System.out.println("----------------------------------------");
+		System.out.println("THIRD TEST");
+		System.out.println("----------------------------------------\n");
+		System.out.println("-----------PART 1: AFD -> GR------------\n");
+		System.out.println(afd2.toGR());
+		System.out.println("-----------PART 2: AFND -> GR-----------\n");
+		System.out.println(afnd.toGR());
+		System.out.println("-----------PART 3: AFNDL -> GR----------\n");
+		System.out.println(afndl.toGR());
+		
+		System.out.println("----------------------------------------");
+		System.out.println("FOURTH TEST");
+		System.out.println("----------------------------------------\n");
+		System.out.println("-----------PART 1: AFD -> AFND----------\n");
+		System.out.println(afd2.toAFND());
+		System.out.println("-----------PART 2: AFD -> AFNDL---------\n");
+		System.out.println(afd2.toAFNDL());
+		System.out.println("-----------PART 3: AFND -> AFNDL--------\n");
+		System.out.println(afnd.toAFNDL());
+		
+		System.out.println("----------------------------------------");
+		System.out.println("FIFTH TEST");
+		System.out.println("----------------------------------------\n");
+		Map<String, Set<String>> predicates = new HashMap<String, Set<String>>();
+		predicates.put("S", new HashSet<String>(Arrays.asList(new String[]{"T a","V b","b","X c","e"})));
+		predicates.put("T", new HashSet<String>(Arrays.asList(new String[]{"T a","V b","b"})));
+		predicates.put("V", new HashSet<String>(Arrays.asList(new String[]{"V b","b"})));
+		predicates.put("X", new HashSet<String>(Arrays.asList(new String[]{"X c","Q d"})));
+		predicates.put("Q", new HashSet<String>(Arrays.asList(new String[]{"c"})));
+		GR gr = new GR(GR_NT, GR_ALPHABET, predicates, GR_INITIAL_STATE);
+		System.out.println(gr);
+		System.out.println("\n\nRIGHT LINEAR GRAMMAR:\n\n");
+		System.out.println(gr.toRight());
 	}
 
 }

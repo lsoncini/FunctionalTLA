@@ -56,15 +56,17 @@ public class AFNDL extends AF{
 	public boolean setDelta(String state, String character, Set<String> positions){
 		int j;
 		int i = states.contains(state) ? states.headSet(state).size() : -1;
-		if(character.equals(LAMBDA))
+		if (character.equals(LAMBDA))
 			j = deltas[0].length - 1;
 		else 
 			j = alphabet.contains(character) ? alphabet.headSet(character).size() : -1;
 		
-		if(j==-1 || i==-1 || !this.states.containsAll(positions))
-			return Boolean.FALSE;
+		if (positions != null && !positions.isEmpty()) {
+			if (j==-1 || i==-1 || !this.states.containsAll(positions))
+				return Boolean.FALSE;
+		}
 		
-		deltas[i][j] = positions;
+		deltas[i][j] = positions == null ? new HashSet<>() : positions;
 		return Boolean.TRUE;
 	}
 	
@@ -84,9 +86,8 @@ public class AFNDL extends AF{
 		return closure;
 	}
 	
+	@Override
 	public AFND toAFND() {
-		@SuppressWarnings("unchecked")
-		Set<String>[][] newDelta = new HashSet[deltas.length][deltas[0].length - 1];
 		Set<String> fStates = new HashSet<>();
 		for (String fs : finalStates)
 			fStates.addAll(lambdaClosure(fs));
@@ -106,12 +107,17 @@ public class AFNDL extends AF{
 		return afnd;
 	}
 	
+	@Override
+	public boolean hasLambdas() {
+		return true;
+	}
+
 	public AFD toAFD() {
 		return toAFND().toAFD();
 	}
 	
 	@Override
-	public boolean hasLambdas() {
-		return true;
+	public AFNDL toAFNDL() {
+		return this;
 	}
 }

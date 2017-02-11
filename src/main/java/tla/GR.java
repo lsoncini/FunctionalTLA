@@ -115,7 +115,7 @@ public class GR {
 				String[] strings = s.split(" ");
 				if (nonTerminals.contains(strings[0]) && strings.length > 1) {
 					Set<String> oldList = ps.getOrDefault(strings[0], new HashSet<>());
-					oldList.add(s.substring(strings[0].length()).concat(p.getKey()));
+					oldList.add(s.replaceFirst(strings[0]+" ", "").concat(" ").concat(p.getKey()));
 					ps.put(strings[0], oldList);
 					isGRD = false;
 				} else if (strings.length == 1) {
@@ -129,7 +129,7 @@ public class GR {
 						oldList.add(s);
 						ps.put(p.getKey(), oldList);
 					} else {
-						newStateList.add(s.concat(p.getKey()));
+						newStateList.add(s.concat(" ").concat(p.getKey()));
 						ps.put(initial, newStateList);
 					}
 				} else {
@@ -293,5 +293,15 @@ public class GR {
 		}
 		sb.append("\t }\n").append("}\n");
 		return sb.toString();
+	}
+	
+	public AFNDL toAFNDL() {
+		return null;
+	}
+	public AFND toAFND() {
+		return toAFNDL().toAFND();
+	}
+	public AFD toAFD() {
+		return toAFNDL().toAFD();
 	}
 }

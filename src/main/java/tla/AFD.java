@@ -98,4 +98,24 @@ public class AFD extends AF{
 	public AFD toAFD() {
 		return this;
 	}
+	@Override
+	public AFND toAFND() {
+		return new AFND(getAlphabet(), getStates(), getFinalStates(), getDeltas(), getInitialState());
+	}
+	
+	@Override
+	public AFNDL toAFNDL() {
+		AFNDL ans = new AFNDL(getAlphabet(), getStates(), getFinalStates(), getInitialState());
+		for (String st : getStates()) {
+			for (String c : getAlphabet()) {
+				Set<String> thisSet = new HashSet<String>();
+				String thisDelta = getDelta(st, c);
+				if (thisDelta != null) {
+					thisSet.add(thisDelta);
+					ans.setDelta(st, c, thisSet);	
+				}
+			}
+		}
+		return ans;
+	}
 }

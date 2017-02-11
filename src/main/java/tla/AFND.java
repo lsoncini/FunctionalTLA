@@ -54,10 +54,12 @@ public class AFND extends AF {
 		int i = states.contains(state) ? states.headSet(state).size() : -1;
 		int j = alphabet.contains(character) ? alphabet.headSet(character).size() : -1;
 		
-		if(j==-1 || i==-1 || !this.states.containsAll(positions))
-			return Boolean.FALSE;
+		if (positions != null && !positions.isEmpty()) {
+			if (j==-1 || i==-1 || !this.states.containsAll(positions))
+				return Boolean.FALSE;
+		}
 		
-		deltas[i][j] = positions;
+		deltas[i][j] = positions == null ? new HashSet<>() : positions;
 		return Boolean.TRUE;
 	}
 	@Override
@@ -135,5 +137,21 @@ public class AFND extends AF {
 			if(finalStates.contains(st))
 				return true;
 		return false;
+	}
+	
+	@Override
+	public AFND toAFND() {
+		return this;
+	}
+	
+	@Override
+	public AFNDL toAFNDL() {
+		AFNDL ans = new AFNDL(getAlphabet(), getStates(), getFinalStates(), getInitialState());
+		for (String st : getStates()) {
+			for (String c : getAlphabet()) {
+				ans.setDelta(st, c, getDelta(st, c));
+			}
+		}
+		return ans;
 	}
 }

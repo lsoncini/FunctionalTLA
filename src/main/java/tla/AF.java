@@ -55,6 +55,12 @@ public abstract class AF {
 	}
 	
 	public abstract AFD toAFD();
+	public abstract AFND toAFND();
+	public abstract AFNDL toAFNDL();
+	
+	public GR toGR() {
+		return this.toAFD().toGR();
+	}
 	
 	@Override
 	public String toString() {
