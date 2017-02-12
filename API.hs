@@ -59,11 +59,11 @@ evalHM _ = []
 
 --Checks if a grammar is regular.
 isRegular :: GR -> Bool
-isRegular (GR nt t p _) = isRegular' nt t p
+isRegular (GR nt t p _) = isRegular' nt nt t p
 
-isRegular' :: SYMBOLS -> SYMBOLS -> HM.HashMap String [String] -> Bool
-isRegular' [] _ _ = True
-isRegular' (sy:sys) t m = and [(isRegular'' (evalHM (HM.lookup sy m)) (sy:sys) t),(isRegular' sys t m)]
+isRegular' :: SYMBOLS -> SYMBOLS -> SYMBOLS -> HM.HashMap String [String] -> Bool
+isRegular' [] _ _ _ = True
+isRegular' (sy:sys) nt t m = and [(isRegular'' (evalHM (HM.lookup sy m)) nt t),(isRegular' sys nt t m)]
 
 isRegular'' :: [String] -> SYMBOLS -> SYMBOLS -> Bool
 isRegular'' [] _ _ = True
@@ -175,7 +175,10 @@ cleanMap (GR nt t p is) (sy:sys) = cleanMap (GR nt t (HM.delete sy p) is) sys
 
 --Adds a predicate, if possible, into a regular grammar.
 addPredicate :: GR -> String -> [String] -> GR
-addPredicate (GR nt t p is) from to = (GR nt t (HM.insert from ((evalHM (HM.lookup from p))++to) p) is) 
+addPredicate (GR nt t p is) from to = addPredicate' (GR nt t p is) from to (evalHM (HM.lookup from p)) 
+
+addPredicate' :: GR -> String -> [String] -> [String]-> GR
+addPredicate' (GR nt t p is) from to olds = (GR nt t (HM.insert from (olds++(removeAll to (from:olds))) p) is)
 
 --Adds a list of predicates, if possible, into a regular grammar.
 addPredicates :: GR -> HM.HashMap String [String] -> STATES-> GR 
@@ -210,7 +213,7 @@ toRight :: GR -> GR
 toRight (GR nt t p is) = squash (toRight' (GR nt t p is) HM.empty nt) 
 
 toRight' :: GR -> HM.HashMap String [String] -> STATES -> GR
-toRight' (GR nt t _ _) m [] = (GR ("FF":nt) t (HM.insert "FF" ["\\"] m) "FF")   
+toRight' (GR nt t _ is) m [] = (GR ("FF":nt) t (HM.insert is ["\\"] m) "FF")   
 toRight' (GR nt t p is) m (st:sts) = toRight' (GR nt t p is) (itRight (GR nt t p is) m (getHM (HM.lookup st p)) st) sts
 
 itRight :: GR -> HM.HashMap String [String] -> [String] -> String -> HM.HashMap String [String]
