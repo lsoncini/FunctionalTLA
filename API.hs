@@ -239,7 +239,7 @@ toAFNDL' :: GR -> Maybe AFNDL
 toAFNDL' (GR nt t p is) = fillNDL (createAFNDL t nt (makeFinalStatesL nt p) is) p
 
 fillNDL :: Maybe AFNDL -> HM.HashMap String [String] -> Maybe AFNDL
-fillNDL (Just (AFNDL a st fs is d)) m = Just (AFNDL a st fs is (makeDeltaL (AFNDL a st fs is []) m))
+fillNDL (Just (AFNDL a st fs is d)) m = Just (makeDeltaL (AFNDL a st fs is d) m)
 fillNDL Nothing _ = Nothing
 
 --Makes a list of all final states in a regular grammar.
@@ -250,22 +250,40 @@ makeFinalStatesL (st:sts) m
 	|otherwise = st:(makeFinalStatesL sts m)
 
 --Makes a delta matrix.
-makeDeltaL :: AFNDL -> HM.HashMap String [String] -> DELTASL
+makeDeltaL :: AFNDL -> HM.HashMap String [String] -> AFNDL
 makeDeltaL (AFNDL a st fs is d) m = makeDeltaL' (AFNDL a st fs is d) st m
 
-makeDeltaL' :: AFNDL -> STATES -> HM.HashMap String [String] -> DELTASL
-makeDeltaL' _ [] _ = []
-makeDeltaL' a (st:sts) m = (convertDelta a st (getHM (HM.lookup st m))):(makeDeltaL' a sts m) 
+makeDeltaL' :: AFNDL -> STATES -> HM.HashMap String [String] -> AFNDL
+makeDeltaL' a [] _ = a
+makeDeltaL' a (st:sts) m = makeDeltaL' (convertDelta a st (getHM (HM.lookup st m))) sts m
 
 --Converts a list of productions into a delta matrix.
-convertDelta :: AFNDL -> String -> [String] -> [STATES]
-convertDelta _ _ [] = []
+convertDelta :: AFNDL -> String -> [String] -> AFNDL
+convertDelta a _ [] = a
 convertDelta a s (p:ps) 
 	|p == "\\"  = convertDelta a s ps 
 	|otherwise = (convertDelta (convertDelta' a s (SP.splitOn " " p)) s ps) 
 
 convertDelta' :: AFNDL -> String -> [String] -> AFNDL
 convertDelta' a s (c:st) = setDeltaNDL a s c ((last st):(getDeltaNDL a s c))
+
+	--Makes a delta matrix.
+	--makeDeltaL :: AFNDL -> HM.HashMap String [String] -> DELTASL
+	--makeDeltaL (AFNDL a st fs is d) m = makeDeltaL' (AFNDL a st fs is d) st m
+
+	--makeDeltaL' :: AFNDL -> STATES -> HM.HashMap String [String] -> DELTASL
+	--makeDeltaL' _ [] _ = []
+	--makeDeltaL' a (st:sts) m = (convertDelta a st (getHM (HM.lookup st m))):(makeDeltaL' a sts m) 
+
+	--Converts a list of productions into a delta matrix.
+	--convertDelta :: AFNDL -> String -> [String] -> [STATES]
+	--convertDelta _ _ [] = []
+	--convertDelta a s (p:ps) 
+	--	|p == "\\"  = convertDelta a s ps 
+	--	|otherwise = (convertDelta (convertDelta' a s (SP.splitOn " " p)) s ps) 
+
+	--convertDelta' :: AFNDL -> String -> [String] -> AFNDL
+	--convertDelta' a s (c:st) = setDeltaNDL a s c ((last st):(getDeltaNDL a s c))
 
 	-------------------
 	--FINITE AUTOMATA--
@@ -381,6 +399,7 @@ setDeltaD' (xs:xss) i j to
 	|otherwise = xs:(setDeltaD' xss (i-1) j to)
 
 setD' :: [Maybe String] -> Maybe String -> Int -> [Maybe String]
+setD' [] _ _ = []
 setD' (x:xs) to 0 = to:xs
 setD' (x:xs) to n = x:(setD' xs to (n-1))
 
@@ -450,7 +469,7 @@ afdToAFNDL a = afndToAFNDL (afdToAFND a)
 		--CREATION--
 		------------
 
---Creates, if possible, an AFNDL.
+--Creates, if possible, an AFND.
 createAFND :: ALPHABET -> STATES -> STATES -> String -> Maybe AFND
 createAFND a s f i 
 	|belongsAll s (i:f) = Just (AFND a s f i (createList (length s) (createList (length a) [])))
@@ -556,8 +575,10 @@ setDelta' (xs:xss) i j to
 	|otherwise = xs:(setDelta' xss (i-1) j to)
 
 set' :: [[String]] -> [String] -> Int -> [[String]]
-set' (x:xs) to 0 = to:xs
-set' (x:xs) to n = x:(set' xs to (n-1))
+set' [] _ _ = []
+set' (x:xs) to j
+	|j == 0 = to:xs
+	|otherwise = x:(set' xs to (j-1))
 
 		------------------
 		--TRANSFORMATION--
