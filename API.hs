@@ -313,7 +313,7 @@ data AFND = AFND {		alphabetND	 	:: ALPHABET
 data AFD = 	AFD {		alphabetD 		:: ALPHABET
 					,	statesD 		:: STATES
 					,	finalStateD 	:: STATES
-					,	initialStateN 	:: String
+					,	initialStateD 	:: String
 					,	deltasD 		:: DELTASI
 			    } deriving (Show)
 
@@ -372,6 +372,17 @@ hasValidStates (AFD _ st fs is _)
 	|belongs st is == -1 = False
 	|otherwise = belongsAll st fs 
 
+--Check if a word belongs to the generated language
+isProduced :: AFD -> String -> Bool
+isProduced (AFD alp st fs i d) word = isProducedFrom (AFD alp st fs i d) word i  
+
+isProducedFrom :: AFD -> String -> String -> Bool
+isProducedFrom (AFD alp sts fs i d) [] st = (belongs fs st /= -1)
+isProducedFrom a (c:cs) st = isProducedFrom' a cs (getDeltaD a st [c])
+
+isProducedFrom' :: AFD -> String -> Maybe String -> Bool
+isProducedFrom' _ _ Nothing = False
+isProducedFrom' a cs (Just next) = isProducedFrom a cs next
 		----------------
 		--MODIFICATION--
 		----------------
@@ -403,17 +414,17 @@ setD' [] _ _ = []
 setD' (x:xs) to 0 = to:xs
 setD' (x:xs) to n = x:(setD' xs to (n-1))
 
---TODO
-		--Adds a trap state into an AFD.
+--Adds a trap state into an AFD.
 addTrap :: AFD -> AFD
-addTrap a = a
+addTrap (AFD alp st fs is d) = AFD alp ("TT":st) fs is (addTrap' (d++[(createList (length alp) (Just "TT"))]))
 
-		--Minimize an AFD.
-minimize :: AFD -> AFD 
-minimize a = minimize' (addTrap a)
+addTrap' :: DELTASI -> DELTASI
+addTrap' [] = []
+addTrap' (xs:xss) = (addTrap'' xs):(addTrap' xss)
 
-minimize' :: AFD -> AFD 
-minimize' a = a
+addTrap'' :: [Maybe String] -> [Maybe String]
+addTrap'' [] = []
+addTrap'' (Nothing:xs) = (Just "TT"):(addTrap'' xs)
 
 		------------------
 		--TRANSFORMATION--
@@ -504,13 +515,64 @@ auxDelta i j d = d!!i!!j
 
 		------------------
 		--TRANSFORMATION--
-		------------------
+		------------8------
 
 --TODO
 
 		--Converts an AFND into an AFD.
 toAFD :: AFND -> AFD
-toAFD  (AFND a b c d e) = AFD a b c d [[Just "a"]]
+toAFD  (AFND alp sts fsts is d) = toAFDAux (AFND alp sts fsts is d) ((AFD alp [] (isFinal fsts is) is []), [[is]]) 
+
+toAFDAux :: AFND -> (AFD, [STATES]) -> AFD 
+toAFDAux _ (a ,[]) = a
+toAFDAux afnd (af, (p:ps)) = toAFDAux afnd (toAFDAux' afnd (af, ps) p (concatSts p)) 
+
+toAFDAux' :: AFND -> (AFD, [STATES])-> STATES -> String -> (AFD, [STATES])
+toAFDAux' (AFND [] _ _ _ _ ) af _ _ = af
+toAFDAux' (AFND (a:as) sts fsts is d) ((AFD alp nst nfs nis nd), ps) p cname = toAFDAux' (AFND as sts fsts is d) ((toAFDIT (AFND alp sts fsts is d) ((lastAUX (AFD alp nst nfs nis nd) cname), ps) cname (concatDelta (AFND alp sts fsts is d) p a)) a) p cname
+
+lastAUX :: AFD -> String -> AFD
+lastAUX (AFD alp nst nfs nis nd) cname 
+	|belongs nst cname == -1 = (AFD alp (cname:nst) nfs nis ((createList (length alp) Nothing):nd))
+	|otherwise = (AFD alp nst nfs nis nd)
+
+toAFDIT :: AFND -> (AFD, [STATES]) -> String -> STATES -> String-> (AFD, [STATES])
+toAFDIT _ a _ [] _ = a
+toAFDIT afnd (af, ps) cname delta char = toAFDIT' afnd (af, ps) cname delta (concatSts delta) char 
+
+toAFDIT' :: AFND -> (AFD, [STATES]) -> String -> STATES -> String -> String -> (AFD, [STATES])
+toAFDIT' _ a _ [] _ _ = a
+toAFDIT' (AFND alpis sts fsts is d) ((AFD alp nst nfs nis nd), ps) cname delta cdelta char = lastCase ((setDelta (AFD alp nst nfs nis nd) cname char (Just cdelta)), ps) delta cdelta fsts
+
+lastCase :: (AFD, [STATES]) -> STATES -> String -> STATES -> (AFD, [STATES])
+lastCase ((AFD alp st fs is d), ps) delta cdelta finales
+	|and [(belongs ps delta == -1), (belongs st cdelta == -1)] = ((AFD alp st (updatefs fs delta cdelta finales) is d), (ps++(delta:[])))  
+	|otherwise = ((AFD alp st fs is d), ps)
+
+updatefs :: STATES -> STATES -> String -> STATES -> STATES 
+updatefs [] a _ _= a
+updatefs a [] _ _= a
+updatefs st ds cdelta finales
+	|disjoint finales ds = st
+	|otherwise = cdelta:st
+
+isFinal :: STATES -> String -> STATES
+isFinal [] _ = []
+isFinal x s 
+	|belongs x s == -1 = []
+	|otherwise = s:[]
+
+
+concatSts :: STATES -> String
+concatSts sts = concatSts' (IS.sort sts)
+
+concatSts' :: STATES -> String
+concatSts' [] = ""
+concatSts' (st:sts) = st++(concatSts' sts) 
+
+concatDelta :: AFND -> STATES -> String -> STATES
+concatDelta _ [] _ = []
+concatDelta a (st:sts) c = IS.union (getDeltaND a st c) (concatDelta a sts c)
 
 --Converts an AFND into an AFNDL.
 afndToAFNDL :: AFND -> AFNDL
@@ -636,7 +698,7 @@ lamdaClosure (AFNDL alp sts f i d) st
 
 lamdaClosure' :: AFNDL -> [String] -> [String]-> [String]
 lamdaClosure' _ new [] = new 
-lamdaClosure' af new (x:xs) = lamdaClosure' af ((removeAll new (getDeltaNDL af x "\\"))++new) xs
+lamdaClosure' af new (x:xs) = lamdaClosure' af ((removeAll (getDeltaNDL af x "\\") new)++new) xs
 
 checkSize :: ([String], [String]) -> AFNDL -> [String] 
 checkSize (new, old) af
