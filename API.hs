@@ -63,7 +63,9 @@ isRegular (GR nt t p _) = isRegular' nt nt t p
 
 isRegular' :: SYMBOLS -> SYMBOLS -> SYMBOLS -> HM.HashMap String [String] -> Bool
 isRegular' [] _ _ _ = True
-isRegular' (sy:sys) nt t m = and [(isRegular'' (evalHM (HM.lookup sy m)) nt t),(isRegular' sys nt t m)]
+isRegular' (sy:sys) nt t m = (isRegular'' (evalHM (HM.lookup sy m)) nt t) && (isRegular' sys nt t m)
+
+-- isRegular' sys nt t m = and (map (\sy -> isRegular'' (evalHM (HM.lookup sy m)) nt t) sys) 
 
 isRegular'' :: [String] -> SYMBOLS -> SYMBOLS -> Bool
 isRegular'' [] _ _ = True
@@ -213,7 +215,7 @@ toRight :: GR -> GR
 toRight (GR nt t p is) = squash (toRight' (GR nt t p is) HM.empty nt) 
 
 toRight' :: GR -> HM.HashMap String [String] -> STATES -> GR
-toRight' (GR nt t _ is) m [] = (GR ("FF":nt) t (HM.insert is ["\\"] m) "FF")   
+toRight' (GR nt t _ is) m [] = (GR ("FF":nt) t (HM.insert is ("\\":(getHM (HM.lookup is m))) m) "FF")   
 toRight' (GR nt t p is) m (st:sts) = toRight' (GR nt t p is) (itRight (GR nt t p is) m (getHM (HM.lookup st p)) st) sts
 
 itRight :: GR -> HM.HashMap String [String] -> [String] -> String -> HM.HashMap String [String]
@@ -378,11 +380,12 @@ isProduced (AFD alp st fs i d) word = isProducedFrom (AFD alp st fs i d) word i
 
 isProducedFrom :: AFD -> String -> String -> Bool
 isProducedFrom (AFD alp sts fs i d) [] st = (belongs fs st /= -1)
-isProducedFrom a (c:cs) st = isProducedFrom' a cs (getDeltaD a st [c])
+isProducedFrom a (c:cs) st = isProducedFrom' a (c:cs) (getDeltaD a st [c])
 
 isProducedFrom' :: AFD -> String -> Maybe String -> Bool
-isProducedFrom' _ _ Nothing = False
-isProducedFrom' a cs (Just next) = isProducedFrom a cs next
+isProducedFrom' (AFD alp sts fs i d) [] (Just next) = (belongs fs next /= -1)
+isProducedFrom' (AFD alp sts fs i d) _ Nothing = False
+isProducedFrom' a (c:cs) (Just next) = isProducedFrom' a cs (getDeltaD a next [c])
 		----------------
 		--MODIFICATION--
 		----------------
